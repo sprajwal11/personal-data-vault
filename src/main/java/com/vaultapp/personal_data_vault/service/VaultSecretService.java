@@ -78,4 +78,23 @@ public class VaultSecretService {
 
         secretRepo.delete(secret);
     }
+
+    public VaultSecret createSecret(User user, CreateSecretRequest request) {
+        VaultCategory category = categoryRepo.findByIdAndUserId(request.categoryId(), user.getId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        VaultSecret secret = new VaultSecret();
+        secret.setLabel(request.label());
+        secret.setEncryptedValue(request.secretValue());
+        secret.setTitle(request.label()); // Optional: You may want to customize this
+        secret.setCategory(category);
+        secret.setUser(user);
+
+        return secretRepo.save(secret);
+    }
+
+
+    public List<VaultSecret> getSecretsByUser(User user) {
+        return secretRepo.findByUserId(user.getId());
+    }
 }

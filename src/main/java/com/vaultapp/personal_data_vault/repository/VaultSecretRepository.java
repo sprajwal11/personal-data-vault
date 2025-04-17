@@ -7,9 +7,12 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface VaultSecretRepository extends JpaRepository<VaultSecret, Long> {
     List<VaultSecret> findByUser(User user);
     Optional<VaultSecret> findByIdAndUser(Long id, User user);
+
+    List<VaultSecret> findByUserId(UUID id);
 }

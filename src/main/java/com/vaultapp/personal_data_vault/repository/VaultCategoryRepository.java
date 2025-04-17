@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface VaultCategoryRepository extends JpaRepository<VaultCategory, Long> {
@@ -14,4 +15,5 @@ public interface VaultCategoryRepository extends JpaRepository<VaultCategory, Lo
     List<VaultCategory> findByUser(User user);
     
     Optional<VaultCategory> findByIdAndUser(Long id, User user);
+    Optional<VaultCategory> findByIdAndUserId(Long id, UUID userId);
 }
