@@ -12,10 +12,13 @@ public class VaultSecret {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title;
+    private String label; // Example: "Facebook Login"
 
     @Lob
-    private String encryptedValue;
+    private String encryptedValue; // AES-encrypted secret
+
+    private String title;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
@@ -40,11 +43,11 @@ public class VaultSecret {
     }
 
 
-
-    public VaultSecret(Long id, String title, String encryptedValue, VaultCategory category, User user, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public VaultSecret(Long id, String label, String encryptedValue, String title, VaultCategory category, User user, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
-        this.title = title;
+        this.label = label;
         this.encryptedValue = encryptedValue;
+        this.title = title;
         this.category = category;
         this.user = user;
         this.createdAt = createdAt;
@@ -108,6 +111,14 @@ public class VaultSecret {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
     }
 
     // Getters, setters, constructors
