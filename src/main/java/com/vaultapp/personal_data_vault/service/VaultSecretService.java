@@ -11,6 +11,7 @@ import com.vaultapp.personal_data_vault.repository.VaultSecretRepository;
 import com.vaultapp.personal_data_vault.util.AesEncryptionUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class VaultSecretService {
 
     private final VaultSecretRepository secretRepo;
@@ -26,17 +28,19 @@ public class VaultSecretService {
     private final AesEncryptionUtil aes;
 
     public VaultSecretResponse create(CreateSecretRequest req, String email) {
-        User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        log.info("Creating a secret for user email: {}", email);
 
-//        System.out.println("================");
-//        System.out.println(user.getEmail());
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> {
+                    log.error("User not found for email: {}", email);
+                    return new UsernameNotFoundException("User not found");
+                });
 
         VaultCategory category = categoryRepo.findById(req.categoryId())
-                .orElseThrow(() -> new EntityNotFoundException("Category not found"));
-
-//        System.out.println("================");
-//        System.out.println("categary id: "+req.categoryId());
+                .orElseThrow(() -> {
+                    log.error("Category not found with ID: {}", req.categoryId());
+                    return new EntityNotFoundException("Category not found");
+                });
 
         VaultSecret secret = new VaultSecret();
         secret.setLabel(req.label());
@@ -44,19 +48,26 @@ public class VaultSecretService {
         secret.setCategory(category);
         secret.setUser(user);
 
-        secretRepo.save(secret);
+        VaultSecret savedSecret = secretRepo.save(secret);
+
+        log.info("Secret created with ID: {} for user: {}", savedSecret.getId(), user.getEmail());
 
         return new VaultSecretResponse(
-                secret.getId(),
-                secret.getLabel(),
+                savedSecret.getId(),
+                savedSecret.getLabel(),
                 req.secretValue(),
                 category.getId()
         );
     }
 
     public List<VaultSecretResponse> getAll(String email) {
+        log.info("Fetching all secrets for user email: {}", email);
+
         User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> {
+                    log.error("User not found for email: {}", email);
+                    return new UsernameNotFoundException("User not found");
+                });
 
         List<VaultSecretResponse> list = secretRepo.findByUser(user).stream()
                 .map(secret -> new VaultSecretResponse(
@@ -66,35 +77,53 @@ public class VaultSecretService {
                         secret.getCategory().getId()
                 ))
                 .toList();
+
+        log.info("Fetched {} secrets for user: {}", list.size(), email);
         return list;
     }
 
     public void delete(Long id, String email) {
+        log.info("Attempting to delete secret with ID: {} for user: {}", id, email);
+
         User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> {
+                    log.error("User not found for email: {}", email);
+                    return new UsernameNotFoundException("User not found");
+                });
 
         VaultSecret secret = secretRepo.findByIdAndUser(id, user)
-                .orElseThrow(() -> new EntityNotFoundException("Secret not found"));
+                .orElseThrow(() -> {
+                    log.error("Secret not found with ID: {} for user: {}", id, email);
+                    return new EntityNotFoundException("Secret not found");
+                });
 
         secretRepo.delete(secret);
+        log.info("Deleted secret with ID: {} for user: {}", id, email);
     }
 
     public VaultSecret createSecret(User user, CreateSecretRequest request) {
+        log.info("Creating secret for user ID: {}", user.getId());
+
         VaultCategory category = categoryRepo.findByIdAndUserId(request.categoryId(), user.getId())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> {
+                    log.error("Category not found with ID: {} for user ID: {}", request.categoryId(), user.getId());
+                    return new RuntimeException("Category not found");
+                });
 
         VaultSecret secret = new VaultSecret();
         secret.setLabel(request.label());
         secret.setEncryptedValue(request.secretValue());
-        secret.setTitle(request.label()); // Optional: You may want to customize this
+        secret.setTitle(request.label()); // Optional
         secret.setCategory(category);
         secret.setUser(user);
 
-        return secretRepo.save(secret);
+        VaultSecret savedSecret = secretRepo.save(secret);
+        log.info("Secret created with ID: {} for user ID: {}", savedSecret.getId(), user.getId());
+        return savedSecret;
     }
 
-
     public List<VaultSecret> getSecretsByUser(User user) {
+        log.info("Retrieving secrets for user ID: {}", user.getId());
         return secretRepo.findByUserId(user.getId());
     }
 }
