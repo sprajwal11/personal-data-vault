@@ -1,4 +1,9 @@
 package com.vaultapp.personal_data_vault.annotation;
 
-public class LogAudit {
+import java.lang.annotation.*;
+
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface LogAudit {
+    String action();
 }
