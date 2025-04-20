@@ -12,6 +12,10 @@ import com.vaultapp.personal_data_vault.util.AesEncryptionUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -125,5 +129,20 @@ public class VaultSecretService {
     public List<VaultSecret> getSecretsByUser(User user) {
         log.info("Retrieving secrets for user ID: {}", user.getId());
         return secretRepo.findByUserId(user.getId());
+    }
+
+    public Page<VaultSecretResponse> searchSecrets(String email, String query, int page, int size, String sortBy) {
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).ascending());
+        Page<VaultSecret> secrets = secretRepo.findByUserAndLabelContainingIgnoreCase(user, query, pageable);
+
+        return secrets.map(secret -> new VaultSecretResponse(
+                secret.getId(),
+                secret.getLabel(),
+                aes.decrypt(secret.getEncryptedValue()),
+                secret.getCategory().getId()
+        ));
     }
 }

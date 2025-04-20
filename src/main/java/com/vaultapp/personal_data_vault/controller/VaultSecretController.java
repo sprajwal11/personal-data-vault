@@ -2,10 +2,12 @@ package com.vaultapp.personal_data_vault.controller;
 
 import com.vaultapp.personal_data_vault.dto.CreateSecretRequest;
 import com.vaultapp.personal_data_vault.dto.VaultSecretResponse;
+import com.vaultapp.personal_data_vault.security.JwtService;
 import com.vaultapp.personal_data_vault.service.VaultSecretService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,6 +21,7 @@ import java.util.List;
 public class VaultSecretController {
 
     private final VaultSecretService secretService;
+    private final JwtService jwtService;
 
     @PostMapping
 
@@ -47,5 +50,17 @@ public class VaultSecretController {
     ) {
         secretService.delete(id, user.getUsername());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/search")
+    public Page<VaultSecretResponse> searchSecrets(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "label") String sortBy,
+            @RequestHeader("Authorization") String token
+    ) {
+        String email = jwtService.extractUsername(token.substring(7)); // remove "Bearer "
+        return secretService.searchSecrets(email, query, page, size, sortBy);
     }
 }
