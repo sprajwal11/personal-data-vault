@@ -93,7 +93,7 @@ Make sure you have the following installed:
 
 - Java 17+
 - PostgreSQL (or Docker)
-- Maven (or Gradle)
+- Maven
 - Postman (optional, for testing APIs)
 
 ---
