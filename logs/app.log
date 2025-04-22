@@ -2554,3 +2554,6 @@ could not find expected ':'
 2025-04-22 13:58:24 INFO  TomcatWebServer:243 - Tomcat started on port 8080 (http) with context path '/'
 2025-04-22 13:58:24 INFO  PersonalDataVaultApplication:56 - Started PersonalDataVaultApplication in 1.347 seconds (process running for 235.753)
 2025-04-22 13:58:24 INFO  ConditionEvaluationDeltaLoggingListener:63 - Condition evaluation unchanged
+2025-04-22 14:45:33 INFO  LocalContainerEntityManagerFactoryBean:650 - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-04-22 14:45:33 INFO  HikariDataSource:349 - HikariPool-3 - Shutdown initiated...
+2025-04-22 14:45:33 INFO  HikariDataSource:351 - HikariPool-3 - Shutdown completed.
