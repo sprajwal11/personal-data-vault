@@ -33,7 +33,12 @@ public class SecurityConfig {
                 .exceptionHandling(e -> e.authenticationEntryPoint(authEntryPoint)) // ✅ Important for 401 handling
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers(
+                                "/auth/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(userDetailsService)
