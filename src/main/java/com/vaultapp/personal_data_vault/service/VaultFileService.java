@@ -56,7 +56,7 @@ public class VaultFileService {
         }
 
         // Encrypt file path as a mock sensitive data
-        String encryptedKey = aes.encrypt(path); // You can enhance this to encrypt actual file content or keys
+        String encryptedKey = aes.encrypt(path);
 
         VaultFile vaultFile = VaultFile.builder()
                 .filename(file.getOriginalFilename())
@@ -84,7 +84,7 @@ public class VaultFileService {
         logger.info("Fetching all files");
         List<VaultFile> files = fileRepo.findAll();
         return files.stream()
-                .map(file -> new VaultFileResponse(file.getId(), file.getFilename()))
+                .map(file -> new VaultFileResponse(file.getId(), file.getFilename(),file.getCategory().getName(),file.getUploadedAt()))
                 .toList();
     }
 }

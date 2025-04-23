@@ -1,7 +1,9 @@
 package com.vaultapp.personal_data_vault.entity;
 
+import io.swagger.v3.oas.annotations.info.Contact;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +13,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "users")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
@@ -34,4 +37,6 @@ public class User {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     private LocalDateTime lastLoginAt;
+
+
 }
