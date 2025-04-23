@@ -1,5 +1,6 @@
 package com.vaultapp.personal_data_vault.service;
 
+import com.vaultapp.personal_data_vault.dto.VaultFileResponse;
 import com.vaultapp.personal_data_vault.entity.User;
 import com.vaultapp.personal_data_vault.entity.VaultCategory;
 import com.vaultapp.personal_data_vault.entity.VaultFile;
@@ -19,6 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -66,5 +68,23 @@ public class VaultFileService {
                 .build();
 
         return fileRepo.save(vaultFile);
+    }
+
+    public VaultFile getFileByIdAndUser(Long id, String username) {
+        logger.info("Fetching file with ID: {} for user: {}", id, username);
+
+        User user = userRepo.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        return fileRepo.findByIdAndUser(id, user)
+                .orElseThrow(() -> new EntityNotFoundException("File not found"));
+    }
+
+    public List<VaultFileResponse> getAllFiles() {
+        logger.info("Fetching all files");
+        List<VaultFile> files = fileRepo.findAll();
+        return files.stream()
+                .map(file -> new VaultFileResponse(file.getId(), file.getFilename()))
+                .toList();
     }
 }
